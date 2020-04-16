@@ -1,5 +1,5 @@
 
-package server
+package client
 
 import (
 	"log"
