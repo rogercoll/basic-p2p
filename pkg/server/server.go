@@ -1,13 +1,15 @@
 package server
 
 import (
+	"log"
 	"fmt"
 	"net"
-	"bufio"
-	"bytes"
 	"io"
+	"bytes"
 	"strconv"
 	"math/rand"
+	"encoding/binary"
+	"github.com/rogercoll/p2p/pkg/messages"
 )
 
 const (
@@ -28,31 +30,52 @@ func newServer() (net.Listener, error) {
 	return l, nil
 }
 
+func read(conn net.Conn, least int) (*[]byte, int, error){
+	log.Println("Listener: Accepted a request")
+	log.Println("Listener: Read the request content...")
+	buf := make([]byte, least)
+	n, err := io.ReadAtLeast(conn, buf, least)
+	if err != nil {
+		return nil, 0, err
+	}
+	return &buf, n, nil
+}
+
 func handleConnection(c net.Conn) {
-	fmt.Printf("Serving %s\n", c.RemoteAddr().String())
-	reader := bufio.NewReader(c)
-	var buffer bytes.Buffer
-
+	//To improve performace lets use a pool of bytes for each connection
+	/*
+	myConnPool := &sync.Pool{
+		New: func() interface{} {
+			mem := make([]byte, 128)
+			return &mem
+		},
+	}
+	*/
+	log.Printf("Serving %s\n", c.RemoteAddr().String())
 	for {
-		netData,  isPrefix, err := reader.ReadLine()
-		if err != nil {
-			if err == io.EOF {
-				break
+		content, size, err := read(c,24)
+		if err == io.EOF {
+                break
+        } else {
+			log.Printf("Listener[ERROR]: Error while reading content %v\n", err)
+		}
+		if size >= 24 {
+			fmt.Println(size)
+			var tmp messages.Version
+			tmpbuf := bytes.NewReader(*content)
+			err := binary.Read(tmpbuf, binary.LittleEndian, &tmp)
+			if err != nil {
+				fmt.Println("binary.Read failed:", err)
 			}
-			fmt.Println(err)
-			return 
+			fmt.Printf("+%v\n", tmpbuf)
+			readbleMessage, err := messages.Parse(&tmp)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				fmt.Printf("+%v\n", readbleMessage)
+			}
 		}
-		buffer.Write(netData)
-		temp := buffer.String()
-		if temp == "STOP" {
-				break
-		}
-		if !isPrefix {
-			break
-		}
-		fmt.Println("yeeeee")
-		fmt.Println(temp)
-
+		
 		result := strconv.Itoa(random(1,1234)) + "\n"
 		c.Write([]byte(string(result)))
 	}

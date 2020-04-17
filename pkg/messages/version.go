@@ -1,6 +1,12 @@
 package messages
 
+import (
+	"time"
+)
 
+type Message interface {
+	//Parse...
+}
 //The version message provides information about the transmitting node to the receiving node at the beginning of a connection. 
 //Until both peers have exchanged version messages, no other messages will be accepted.
 
@@ -14,3 +20,8 @@ type Version struct {
 }
 
 //Bytes= 4 + 8 + 16 + 2 + 16 + 2 = 48 bytes
+
+type VersionReadble struct {
+	Version 	string
+	Timestamp	time.Time
+}

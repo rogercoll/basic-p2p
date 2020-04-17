@@ -19,7 +19,7 @@ func WriteMessage(c net.Conn, message string) {
 	buf := new(bytes.Buffer)
 	data := messages.Version{
 		uint32(1),
-		uint64(12345),
+		uint64(1405544146),
 		[4]byte{192,168,1,1},
 		uint16(123),
 		[4]byte{192,168,1,48},
