@@ -5,8 +5,6 @@ import (
 	"net"
 	"github.com/rogercoll/p2p/pkg/messages"
 	"bytes"
-	"reflect"
-	"encoding/binary"
 )
 
 const (
@@ -16,26 +14,19 @@ const (
 )
 
 func WriteMessage(c net.Conn, message string) {
-	buf := new(bytes.Buffer)
-	data := messages.Version{
-		uint32(1),
-		uint64(1405544146),
-		[4]byte{192,168,1,1},
-		uint16(123),
-		[4]byte{192,168,1,48},
-		uint16(123),
+	data, err := messages.NewVersion(12, []byte{192,168,1,1},123, []byte{192,168,1,48}, 775)
+	if err != nil {
+		log.Println(err)
 	}
-	v := reflect.ValueOf(data)
-	for i := 0; i < v.NumField(); i++ {
-		err := binary.Write(buf, binary.LittleEndian, v.Field(i).Interface())
-		if err != nil {
-			log.Println("binary.Write failed:", err)
-		}
+	var b bytes.Buffer
+	n, err := data.WriteTo(&b)
+	if err != nil {
+		log.Println(err)
 	}
-	log.Printf("%x", buf.Bytes())
-	log.Println(len(buf.Bytes()))
-	log.Println(message)
-	c.Write(buf.Bytes())
+	log.Printf("%x", b.Bytes())
+	log.Println(n)
+	log.Println(*data)
+	c.Write(b.Bytes())
 }
 
 func Run() error {

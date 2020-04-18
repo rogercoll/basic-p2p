@@ -9,8 +9,8 @@ import (
 //The idea is to use interfaces
 func Parse(v *Version) (VersionReadble, error) {
 	var tmp VersionReadble
-	tmp.Version = fmt.Sprint(v.Version)
-	i, err := strconv.ParseInt(fmt.Sprint(v.Timestamp), 10, 64)
+	tmp.Version = fmt.Sprint(v.version)
+	i, err := strconv.ParseInt(fmt.Sprint(v.timestamp), 10, 64)
     if err != nil {
         return VersionReadble{}, err
     }

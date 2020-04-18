@@ -56,16 +56,17 @@ func handleConnection(c net.Conn) {
 		content, size, err := read(c,24)
 		if err == io.EOF {
                 break
-        } else {
+        } else if err != nil {
 			log.Printf("Listener[ERROR]: Error while reading content %v\n", err)
 		}
 		if size >= 24 {
 			fmt.Println(size)
 			var tmp messages.Version
 			tmpbuf := bytes.NewReader(*content)
+			//READ MUST BE IMPLEMENTED BY MESSAGE PKG AS VERSION IS NOT PUBLIC
 			err := binary.Read(tmpbuf, binary.LittleEndian, &tmp)
 			if err != nil {
-				fmt.Println("binary.Read failed:", err)
+				fmt.Println("binary.Read failed: %v", err)
 			}
 			fmt.Printf("+%v\n", tmpbuf)
 			readbleMessage, err := messages.Parse(&tmp)
