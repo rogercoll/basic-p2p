@@ -10,6 +10,7 @@ import (
 func Parse(v *Version) (VersionReadble, error) {
 	var tmp VersionReadble
 	tmp.Version = fmt.Sprint(v.version)
+	fmt.Printf("+%v\n",v)
 	i, err := strconv.ParseInt(fmt.Sprint(v.timestamp), 10, 64)
     if err != nil {
         return VersionReadble{}, err
