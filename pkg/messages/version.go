@@ -23,6 +23,8 @@ type Version struct {
 	addr_trans	[]byte
 	addr_trans_port uint16
 }
+//Bytes= 4 + 8 + 16 + 2 + 16 + 2 = 48 bytes
+
 
 func NewVersion(v int, addr_recv []byte, recv_port int, addr_trans []byte, trans_port int) (*Version, error) {
 	if len(addr_recv) != 4 {
@@ -57,7 +59,16 @@ func (data *Version) WriteTo(w io.Writer) (int64, error) {
 	return int64(n), nil
 }
 
-//Bytes= 4 + 8 + 16 + 2 + 16 + 2 = 48 bytes
+func ReadVersion(r io.Reader) (*Version, error) {
+	var v Version
+	err := binary.Read(r, binary.LittleEndian, &v)
+	if err != nil {
+		fmt.Println("hereeee")
+		return nil, fmt.Errorf("binary.Read failed: %v", err)
+	}
+	return &v, nil
+}
+
 
 type VersionReadble struct {
 	Version	        string

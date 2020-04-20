@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"strconv"
 	"math/rand"
-	"encoding/binary"
 	"github.com/rogercoll/p2p/pkg/messages"
 )
 
@@ -61,15 +60,13 @@ func handleConnection(c net.Conn) {
 		}
 		if size >= 24 {
 			fmt.Println(size)
-			var tmp messages.Version
 			tmpbuf := bytes.NewReader(*content)
-			//READ MUST BE IMPLEMENTED BY MESSAGE PKG AS VERSION IS NOT PUBLIC
-			err := binary.Read(tmpbuf, binary.LittleEndian, &tmp)
+			fmt.Println(*content)
+			v, err := messages.ReadVersion(tmpbuf)
 			if err != nil {
-				fmt.Println("binary.Read failed: %v", err)
-			}
-			fmt.Printf("+%v\n", tmpbuf)
-			readbleMessage, err := messages.Parse(&tmp)
+				fmt.Println(err)
+			}			
+			readbleMessage, err := messages.Parse(v)
 			if err != nil {
 				fmt.Println(err)
 			} else {
